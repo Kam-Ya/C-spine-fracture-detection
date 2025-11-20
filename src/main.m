@@ -23,7 +23,7 @@ function list = load(folder)
         base = files(i).name;
         name = fullfile(files(i).folder, base);
         % fprintf('file name = %s\n', name);
-        list{i} = imread(name);
+        list{i} = im2gray(imread(name));
     end
 end
 
@@ -33,6 +33,7 @@ function list = addNoise(images)
 
     for image = 1:num
         J = images{image};
+        
         
         % add noise to image based on a random number, 1 = salt and pepper,
         % 2 = gaussian, 3 = poisson
@@ -57,8 +58,11 @@ function list = filter(images)
         median = medfilt3(images{i});
         se = strel("disk", 4);
         open = imopen(median, se);
-        hist = histeq(open);
-        list{i} = hist; 
+        % hist = histeq(open);
+        sobel_x = [-1 0 1; -2 0 2; -1 0 1];
+        sobel_y = [1 2 1; 0 0 0; -1 -2 -1];
+        sobel_mag = abs(imfilter(open, sobel_x)) + abs(imfilter(open, sobel_y));
+        list{i} = sobel_mag; 
     end
 
 end
@@ -95,6 +99,9 @@ function saveList(list, folder, named)
         fig = figure;
         name = sprintf('%s%d.png', named, i);
         full = fullfile(fold, name);
+        
+        subplot(1,1,1);
+        imshow(list{i});
 
         saveas(fig, full);
         close(fig);
