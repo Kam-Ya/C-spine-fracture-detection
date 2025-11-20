@@ -93,7 +93,7 @@ function saveList(list, folder, named)
   
     for i = 1:length(list)
         fig = figure;
-        name = sprintf('%s%d', named, i);
+        name = sprintf('%s%d.png', named, i);
         full = fullfile(fold, name);
 
         saveas(fig, full);
