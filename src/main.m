@@ -1,3 +1,6 @@
+test(imread("1.png"));
+
+return;
 % load and process fractured images
 folder = 'images/fracture';
 images = load(folder);
@@ -44,7 +47,7 @@ function list = addNoise(images)
         elseif choice == 2
             list{image} = imgaussfilt(J, 2);
         else
-            list{image} = imnoise(J, "gaussian");
+            list{image} = imnoise(J, "poisson");
         end
 
     end
@@ -71,20 +74,24 @@ end
 function test(image)
     J = rescale(image);
     gray = im2gray(J);
-    noisy = imnoise(gray, "salt & pepper", 0.02);
+    noisy = imgaussfilt(gray, 2);
 
     median = medfilt2(noisy);
     se = strel("disk", 4);
     open = imopen(median, se);
-    hist = histeq(open);
+    sobel_x = [-1 0 1; -2 0 2; -1 0 1];
+    sobel_y = [1 2 1; 0 0 0; -1 -2 -1];
+    sobel_mag = abs(imfilter(open, sobel_x)) + abs(imfilter(open, sobel_y));
     % Display the original and filtered images for comparison
     fig = figure;
     subplot(2, 3, 1); imshow(gray); title("original");
     subplot(2, 3, 2); imshow(noisy); title("noisy");
     subplot(2, 3, 3); imshow(median); title("median filtered");
     subplot(2, 3, 4); imshow(open); title("opened");
-    subplot(2, 3, 5); imshow(hist); title("equalized");
+    subplot(2, 3, 5); imshow(sobel_mag); title("edge detection");
     saveas(fig, "example.png");
+
+    close(fig);
 end
     
 
