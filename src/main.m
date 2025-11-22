@@ -1,6 +1,5 @@
 test(imread("1.png"));
-
-return;
+return; 
 % load and process fractured images
 folder = 'images/fracture';
 images = load(folder);
@@ -92,6 +91,14 @@ function test(image)
     saveas(fig, "example.png");
 
     close(fig);
+
+    noisySNR = psnr(noisy, gray);
+    medianSNR = psnr(median, gray);
+    openSNR = psnr(open, gray);
+    sobelSNR = psnr(sobel_mag, gray);
+
+    % Calculate and display the SNR values for the processed images
+    fprintf('SNR values:\nNoisy: %.2f dB\nMedian: %.2f dB\nOpened: %.2f dB\nSobel: %.2f dB\n', noisySNR, medianSNR, openSNR, sobelSNR);
 end
     
 
