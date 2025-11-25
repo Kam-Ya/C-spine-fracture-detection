@@ -22,9 +22,17 @@ k = 10;
 
 indices = randperm(images);
 perFold = floor(images / k );
-options = trainingOptions('sgdm', 'InitialLearnRate', 1e-3, 'MaxEpochs', 10,'CheckpointPath', tempdir);
+options = trainingOptions('sgdm', 'InitialLearnRate', 1e-3, 'MaxEpochs', 10,'CheckpointPath', "checkpoint");
 
-layers1 = fasterRCNNLayers([555 555 3], 1, [1 1], "resnet50", "activation_40_relu");
+layers1 = [
+        imageInputLayer([1124 1866 3])
+        convolution2dLayer(3,8, "Padding","same")
+        batchNormalizationLayer
+        reluLayer
+        maxPooling2dLayer(2, "Stride", 2)
+        fullyConnectedLayer(2)
+        softmaxLayer
+        classificationLayer];
 
 for i = 1:k
    start = (i - 1) * perFold + 1;
@@ -43,16 +51,26 @@ for i = 1:k
     rows = numel(trainSub.Files);
     valSub = subset(imds, ind);
     cell = table(trainSub.Files, trainSub.Labels);
-    trainSub = transform(trainSub,@(x) imresize(x, [555 555]));
-    valSub = transform(valSub,@(x) imresize(x, [555 555]));
+    trainCell = change(trainSub, [555 555], rows);
+    valSub = change(valSub, [555 555], numel(valSub.Files));
     
 
-
-    mod = trainFastRCNNObjectDetector(cell, layers1, options); % program breaks here, (invalud network error)
+    disp("training");
+    mod = trainNetwork(trainSub, layers1, options); % program breaks here, (invalud network error)
 
     predictedLabels = detect(mod, valSub);
     % Calculate the accuracy of the model
     accuracy = mean(predictedLabels == valSub.Labels);
     disp(['Model Accuracy: ', num2str(accuracy)]);
 
+end
+
+function cells = change(x, size, rows)
+    V = cell(rows);
+    label = cell(rows);
+    for image = 1:rows
+        V{image} = imresize(readimage(x, image), size);
+        label = x.Labels(image);
+    end
+    cells = {V, label};
 end
