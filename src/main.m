@@ -83,22 +83,26 @@ function test(image)
     sobel_mag = abs(imfilter(open, sobel_x)) + abs(imfilter(open, sobel_y));
     % Display the original and filtered images for comparison
     fig = figure;
-    subplot(2, 3, 1); imshow(gray); title("original");
-    subplot(2, 3, 2); imshow(noisy); title("noisy");
-    subplot(2, 3, 3); imshow(median); title("median filtered");
-    subplot(2, 3, 4); imshow(open); title("opened");
-    subplot(2, 3, 5); imshow(sobel_mag); title("edge detection");
+    imshow(gray); title("original");
     saveas(fig, "example.png");
-
     close(fig);
 
-    noisySNR = psnr(noisy, gray);
-    medianSNR = psnr(median, gray);
-    openSNR = psnr(open, gray);
-    sobelSNR = psnr(sobel_mag, gray);
-
-    % Calculate and display the SNR values for the processed images
-    fprintf('SNR values:\nNoisy: %.2f dB\nMedian: %.2f dB\nOpened: %.2f dB\nSobel: %.2f dB\n', noisySNR, medianSNR, openSNR, sobelSNR);
+    fig = figure;
+    imshow(noisy); title("noisy");
+    saveas(fig, "noisy.png");
+    close(fig);
+    fig = figure;
+    imshow(median); title("median");
+    saveas(fig, "median.png");
+    close(fig);
+    fig = figure;
+    imshow(open); title("opened");
+    saveas(fig, "open.png");
+    close(fig);
+    fig = figure;
+    imshow(sobel_mag); title("edge detection");
+    saveas(fig, "edge.png");
+    close(fig);
 end
     
 
